@@ -1,0 +1,14 @@
+{
+  "name": "session-rotation",
+  "description": "Session rotation for Claude Code: hand off to a fresh session before the context fills up.",
+  "owner": {
+    "name": "Haim Ben Jacob"
+  },
+  "plugins": [
+    {
+      "name": "session-rotation",
+      "source": "./",
+      "description": "When the context gets high, hand off to a fresh Claude Code session in the same tmux session, automatically."
+    }
+  ]
+}

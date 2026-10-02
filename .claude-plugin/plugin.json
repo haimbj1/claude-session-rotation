@@ -1,0 +1,8 @@
+{
+  "name": "session-rotation",
+  "description": "When the context gets high, hand off to a fresh Claude Code session in the same tmux session, automatically.",
+  "version": "0.1.0",
+  "author": { "name": "Haim Ben Jacob" },
+  "license": "MIT",
+  "keywords": ["tmux", "context", "handoff", "sessions"]
+}
