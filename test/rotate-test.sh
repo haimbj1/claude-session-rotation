@@ -7,7 +7,7 @@ tmp="${TMPDIR:-/tmp}"
 printf 'handoff\n' > "$tmp/rotation-handoff.md"
 rm -f "$tmp/rotation-test-prompt" "$tmp/rotation-test-out"
 tmux new-session -d -s "$s" -n work -c "$here" \
-  "ROTATION_CLAUDE_CMD='$here/test/fake-claude.sh' '$here/scripts/rotate.sh' '$tmp/rotation-handoff.md' > '$tmp/rotation-test-out' 2>&1; sleep 30"
+  "CLAUDE_CONFIG_DIR=/tmp/personal-config ROTATION_CLAUDE_CMD='$here/test/fake-claude.sh' '$here/scripts/rotate.sh' '$tmp/rotation-handoff.md' > '$tmp/rotation-test-out' 2>&1; sleep 30"
 old="$(tmux list-panes -t "$s" -F '#{pane_id}' | head -1)"
 for _ in $(seq 1 20); do
   panes="$(tmux list-panes -s -t "$s" -F '#{pane_id} #{window_name}' 2>/dev/null || true)"
@@ -18,5 +18,6 @@ fail() { echo "FAIL: $1"; echo "panes: $panes"; cat "$tmp/rotation-test-out" 2>/
 echo "$panes" | grep -q "^$old " && fail "old pane still open"
 echo "$panes" | grep -q " work$" || fail "new window lost the name"
 grep -q "rotation-handoff.md" "$tmp/rotation-test-prompt" || fail "new session was not told about the handoff"
+[ "$(cat "$tmp/rotation-test-config")" = "/tmp/personal-config" ] || fail "CLAUDE_CONFIG_DIR was not carried over"
 tmux kill-session -t "$s"
-echo "PASS: rotated $old → $(echo "$panes" | cut -d' ' -f1), name kept, handoff passed"
+echo "PASS: rotated $old → $(echo "$panes" | cut -d' ' -f1), name kept, handoff passed, same Claude config"

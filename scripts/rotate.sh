@@ -22,8 +22,14 @@ abs_handoff="$(cd "$(dirname "$handoff")" && pwd)/$(basename "$handoff")"
 prompt="This session continues a previous one. Read the handoff at ${abs_handoff} first, then continue from its next steps."
 window_name="$(tmux display-message -p -t "$old_pane" '#W')"
 
-new_pane="$(tmux new-window -P -F '#{pane_id}' -n "$window_name" -c "$cwd" \
-  -e "CLAUDE_ROTATION_READY=$ready" -e "CLAUDE_ROTATION_FROM=$old_pane" \
+# The new window gets the tmux server's environment, not this pane's: carry over what decides which
+# Claude account and settings the new session uses (e.g. a personal CLAUDE_CONFIG_DIR).
+env_args=(-e "CLAUDE_ROTATION_READY=$ready" -e "CLAUDE_ROTATION_FROM=$old_pane")
+for var in CLAUDE_CONFIG_DIR ROTATION_THRESHOLD_TOKENS ROTATION_DISABLED ROTATION_READY_TIMEOUT ANTHROPIC_MODEL; do
+  [ -n "${!var:-}" ] && env_args+=(-e "$var=${!var}")
+done
+
+new_pane="$(tmux new-window -P -F '#{pane_id}' -n "$window_name" -c "$cwd" "${env_args[@]}" \
   "$claude_cmd $(printf '%q' "$prompt")")"
 
 for _ in $(seq 1 "$timeout"); do

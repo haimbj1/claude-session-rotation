@@ -11,6 +11,7 @@ in the same tmux session** — the new one starts, reads the handoff, and only t
 3. **Rotate** (inside tmux) — `scripts/rotate.sh` opens a new window in the same tmux session, starts `claude` with
    "read the handoff first", waits for the new session's **SessionStart** hook to report ready, keeps the window name,
    and closes the old pane. If the new session fails to start, the old one stays.
+   The new session gets the same `CLAUDE_CONFIG_DIR` (account/profile) and `ROTATION_*` settings as the old one.
 4. **Outside tmux** — Claude gives you the handoff path and suggests `/compact` or a new session.
 
 Rotate by hand any time with **`/rotate`**.
